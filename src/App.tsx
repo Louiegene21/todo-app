@@ -6,8 +6,14 @@ import {
   Box,
   IconButton,
   Tooltip,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
-import { LightMode, DarkMode } from "@mui/icons-material";
+import { LightMode, DarkMode, DeleteSweep } from "@mui/icons-material";
 import TaskInput from "./components/TaskInput";
 import TaskList from "./components/TaskList";
 import type { Task } from "./types/Task";
@@ -36,7 +42,9 @@ export default function App() {
     return false;
   });
 
-  // 🧠 Save tasks & theme to localStorage
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  // Save tasks & mode
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
@@ -64,7 +72,11 @@ export default function App() {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // 🎨 Dynamic gradient colors for each mode
+  const clearAllTasks = () => {
+    setTasks([]);
+    setConfirmOpen(false);
+  };
+
   const backgroundGradient = useMemo(
     () =>
       darkMode
@@ -107,7 +119,13 @@ export default function App() {
           transition={{ duration: 0.6 }}
         >
           <Paper sx={paperStyle}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
+            {/* Header */}
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
               <Typography
                 variant="h4"
                 fontWeight="bold"
@@ -116,21 +134,69 @@ export default function App() {
                 My To-Do List
               </Typography>
 
-              <Tooltip title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>
-                <IconButton
-                  onClick={() => setDarkMode((prev) => !prev)}
-                  color="inherit"
+              <Box display="flex" alignItems="center" gap={1}>
+                {tasks.length > 0 && (
+                  <Tooltip title="Clear All Tasks">
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <IconButton
+                        onClick={() => setConfirmOpen(true)}
+                        color="error"
+                      >
+                        <DeleteSweep />
+                      </IconButton>
+                    </motion.div>
+                  </Tooltip>
+                )}
+
+                <Tooltip
+                  title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
                 >
-                  {darkMode ? <LightMode color="warning" /> : <DarkMode color="primary" />}
-                </IconButton>
-              </Tooltip>
+                  <IconButton
+                    onClick={() => setDarkMode((prev) => !prev)}
+                    color="inherit"
+                  >
+                    {darkMode ? (
+                      <LightMode color="warning" />
+                    ) : (
+                      <DarkMode color="primary" />
+                    )}
+                  </IconButton>
+                </Tooltip>
+              </Box>
             </Box>
 
+            {/* Task Input & List */}
             <TaskInput onAdd={addTask} />
             <TaskList tasks={tasks} onToggle={toggleTask} onDelete={deleteTask} />
           </Paper>
         </motion.div>
       </Container>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <DialogTitle>Clear All Tasks?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete all tasks? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={clearAllTasks}
+            color="error"
+            variant="contained"
+            autoFocus
+          >
+            Clear All
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
