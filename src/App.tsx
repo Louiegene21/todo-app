@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Container, Typography, Paper } from "@mui/material";
+import { Container, Typography, Paper, Box } from "@mui/material";
 import TaskInput from "./components/TaskInput";
 import TaskList from "./components/TaskList";
 import type { Task } from "./types/Task";
@@ -28,23 +28,46 @@ export default function App() {
   };
 
   return (
-    <Container
-      maxWidth="sm"
+    <Box
       sx={{
-        mt: 8,
-        textAlign: "center",
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #6dd5fa 100%)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        p: 2,
       }}
     >
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
-          My To-Do List
-        </Typography>
-      </motion.div>
+      <Container maxWidth="sm">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Paper
+            sx={{
+              p: 4,
+              borderRadius: 4,
+              boxShadow: "0 8px 30px rgba(0, 0, 0, 0.2)",
+              backdropFilter: "blur(8px)",
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+            }}
+          >
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              color="primary"
+              align="center"
+              gutterBottom
+            >
+              My To-Do List
+            </Typography>
 
-      <Paper sx={{ p: 3, borderRadius: 3, boxShadow: 6 }}>
-        <TaskInput onAdd={addTask} />
-        <TaskList tasks={tasks} onToggle={toggleTask} onDelete={deleteTask} />
-      </Paper>
-    </Container>
+            <TaskInput onAdd={addTask} />
+            <TaskList tasks={tasks} onToggle={toggleTask} onDelete={deleteTask} />
+          </Paper>
+        </motion.div>
+      </Container>
+    </Box>
   );
 }
