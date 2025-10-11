@@ -16,10 +16,17 @@ export default function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
         {tasks.map((task) => (
           <motion.div
             key={task.id}
-            initial={{ opacity: 0, y: 15 }}
+            layout
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.3 }}
+            exit={{
+              opacity: 0,
+              y: -20,
+              transition: { duration: 0.25, ease: "easeOut" },
+            }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <Paper
               sx={{
@@ -30,7 +37,11 @@ export default function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
                 alignItems: "center",
                 justifyContent: "space-between",
                 bgcolor: task.completed ? "success.light" : "background.paper",
-                transition: "0.3s",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+                  transform: "translateY(-2px)",
+                },
               }}
               elevation={3}
             >
@@ -39,6 +50,12 @@ export default function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
                   checked={task.completed}
                   onChange={() => onToggle(task.id)}
                   color="success"
+                  sx={{
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      transform: "scale(1.1)",
+                    },
+                  }}
                 />
                 <ListItemText
                   primary={task.text}
@@ -46,12 +63,15 @@ export default function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
                     textDecoration: task.completed ? "line-through" : "none",
                     color: task.completed ? "text.secondary" : "text.primary",
                     fontWeight: 500,
+                    transition: "color 0.3s ease",
                   }}
                 />
               </ListItem>
-              <IconButton onClick={() => onDelete(task.id)} color="error">
-                <DeleteIcon />
-              </IconButton>
+              <motion.div whileHover={{ rotate: 10 }} whileTap={{ scale: 0.9 }}>
+                <IconButton onClick={() => onDelete(task.id)} color="error">
+                  <DeleteIcon />
+                </IconButton>
+              </motion.div>
             </Paper>
           </motion.div>
         ))}

@@ -12,6 +12,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { LightMode, DarkMode, DeleteSweep } from "@mui/icons-material";
 import TaskInput from "./components/TaskInput";
@@ -43,6 +45,7 @@ export default function App() {
   });
 
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "" });
 
   // Save tasks & mode
   useEffect(() => {
@@ -60,6 +63,7 @@ export default function App() {
       completed: false,
     };
     setTasks((prev) => [newTask, ...prev]);
+    setSnackbar({ open: true, message: "Task added!" });
   };
 
   const toggleTask = (id: number) => {
@@ -70,11 +74,13 @@ export default function App() {
 
   const deleteTask = (id: number) => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
+    setSnackbar({ open: true, message: "Task deleted!" });
   };
 
   const clearAllTasks = () => {
     setTasks([]);
     setConfirmOpen(false);
+    setSnackbar({ open: true, message: "All tasks cleared!" });
   };
 
   const backgroundGradient = useMemo(
@@ -110,6 +116,7 @@ export default function App() {
         alignItems: "center",
         p: 2,
         transition: "background 0.6s ease-in-out",
+        fontFamily: "Poppins, sans-serif",
       }}
     >
       <Container maxWidth="sm">
@@ -152,7 +159,9 @@ export default function App() {
                 )}
 
                 <Tooltip
-                  title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                  title={
+                    darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"
+                  }
                 >
                   <IconButton
                     onClick={() => setDarkMode((prev) => !prev)}
@@ -168,9 +177,35 @@ export default function App() {
               </Box>
             </Box>
 
+            {/* Task Counter */}
+            <Typography
+              variant="subtitle1"
+              textAlign="center"
+              sx={{ mb: 2, fontWeight: 500, color: darkMode ? "#ccc" : "#555" }}
+            >
+              {tasks.length === 0
+                ? "No tasks yet — start by adding one!"
+                : `${tasks.filter((t) => !t.completed).length} remaining / ${
+                    tasks.filter((t) => t.completed).length
+                  } completed`}
+            </Typography>
+
             {/* Task Input & List */}
             <TaskInput onAdd={addTask} />
             <TaskList tasks={tasks} onToggle={toggleTask} onDelete={deleteTask} />
+
+            {/* Saved Indicator */}
+            <Typography
+              variant="caption"
+              sx={{
+                display: "block",
+                textAlign: "center",
+                mt: 2,
+                color: darkMode ? "#aaa" : "#666",
+              }}
+            >
+              All changes saved 💾
+            </Typography>
           </Paper>
         </motion.div>
       </Container>
@@ -180,7 +215,8 @@ export default function App() {
         <DialogTitle>Clear All Tasks?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete all tasks? This action cannot be undone.
+            Are you sure you want to delete all tasks? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -197,6 +233,15 @@ export default function App() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar Notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={2000}
+        onClose={() => setSnackbar({ open: false, message: "" })}
+      >
+        <Alert severity="success">{snackbar.message}</Alert>
+      </Snackbar>
     </Box>
   );
 }
