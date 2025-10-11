@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container, Typography, Paper, Box } from "@mui/material";
 import TaskInput from "./components/TaskInput";
 import TaskList from "./components/TaskList";
@@ -6,7 +6,30 @@ import type { Task } from "./types/Task";
 import { motion } from "framer-motion";
 
 export default function App() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  // Initialize tasks directly from localStorage (avoids one render delay)
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("tasks");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+        } catch (e) {
+          console.error("Failed to parse tasks:", e);
+        }
+      }
+    }
+    return [];
+  });
+
+  // Save tasks to localStorage whenever they change
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+  }, [tasks]);
 
   const addTask = (text: string) => {
     const newTask: Task = {
